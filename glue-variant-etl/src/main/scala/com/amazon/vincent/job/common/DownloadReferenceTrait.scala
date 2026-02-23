@@ -11,7 +11,6 @@ import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 
 import java.nio.file.Paths
 
-// This is not ideal but a temp solution before refactoring https://i.amazon.com/issues/HAIG-2232
 trait DownloadReferenceTrait {
   def logger: LoggerTrait
 

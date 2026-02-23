@@ -20,9 +20,6 @@ object AWSClientProvider {
    * Retry policy is configured to handle throttling encountered with the GetReference API on the
    * sequence store.
    *
-   * The settings for the retry policy were tested and provided by Mosaic team. For more
-   * information please refer to https://t.corp.amazon.com/P80598983/communication Instance of
-   * StsAssumeRoleCredentialsProvider containing customer credentials
    * @return
    *   omicsClient
    */

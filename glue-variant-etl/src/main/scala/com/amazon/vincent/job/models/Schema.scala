@@ -56,7 +56,7 @@ object Schema {
       StructField("total", StringType, nullable = true)))
 
   // the fields for vep struct should match schema defined in
-  // https://code.amazon.com/packages/AwsVincentCellManagementHandlers/blobs/mainline/--/src/main/kotlin/com/amazon/aws/vincent/data/schema/VariantStoreSchema.kt
+  // src/main/kotlin/com/amazon/aws/vincent/data/schema/VariantStoreSchema.kt
   val VepStruct: StructType = StructType(
     Seq(
       StructField("allele", StringType, nullable = true),

@@ -1,0 +1,4 @@
+artifacts:
+  paths:
+    libs/AwsVincentJobs-super.jar: libs/AwsVincentJobs-super.jar
+    bin: bin/

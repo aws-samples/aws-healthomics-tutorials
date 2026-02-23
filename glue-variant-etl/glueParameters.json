@@ -1,0 +1,23 @@
+{
+    "--continuous-log-logGroup": "/aws-glue/jobs/logs",
+    "--enable-continuous-log-filter": "false",
+    "--INPUT_PATH": "s3://{your-bucket}/variants.vcf",
+    "--REFERENCE_ARN": "arn:aws:omics:{region}:{account_id}:referenceStore/{store_id}/reference/{ref_id}",
+    "--job-bookmark-option": "job-bookmark-disable",
+    "--RUN_LEFT_NORMALIZATION": "false",
+    "--extra-jars": "s3://{account_id}-awsvincentjobs-test-jar/AwsVincentJobs-super.jar",
+    "--IMPORT_JOB_ID": "manual-test-job-id",
+    "--enable-s3-parquet-optimized-committer": "true",
+    "--class": "com.amazon.vincent.job.VariantImportJob",
+    "--GLUE_TABLE_PATH": "s3://{your-table-bucket}/omics",
+    "--GLUE_DATABASE_NAME": "variant_{account_id}_{store_id}",
+    "--GLUE_TABLE_NAME": "test",
+    "--enable-continuous-cloudwatch-log": "true",
+    "--job-language": "scala",
+    "--TABLE_FORMAT": "iceberg_1",
+    "--enable-auto-scaling": "true",
+    "--TABLE_SORT_KEYS": "[\"contigname\",\"start\",\"end\"]",
+    "--ANNOTATION_FIELDS": "{\"VEP\":\"CSQ\"}",
+    "--JOB_NAME": "your-glue-job-name",
+    "--datalake-formats": "iceberg"
+}

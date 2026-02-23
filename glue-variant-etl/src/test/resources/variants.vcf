@@ -1,0 +1,7 @@
+##fileformat=VCFv4.1
+##INFO=<ID=VARID,Number=1,Type=String,Description="Variant identifier as specified in the variant catalog">
+##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence annotations from Ensembl VEP. Format: Allele|Consequence|IMPACT|SYMBOL|TRANSCRIPTION_FACTORS">
+##FILTER=<ID=PASS,Description="All filters passed">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	HG0001	HG0002
+chr3	63912684	.	G	T	10	PASS	VARID=ATXN7;CSQ=T|intron_variant&non_coding_transcript_variant|MODIFIER|ANKEF1|,T|downstream_gene_variant|MODIFIER|SNAP25-AS1|TFA	GT	0/0	1/0

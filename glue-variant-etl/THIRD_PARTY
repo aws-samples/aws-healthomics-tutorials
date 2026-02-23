@@ -1,0 +1,26 @@
+# Third-Party Dependencies
+
+This project includes the following third-party dependencies:
+
+| Dependency | Version | License |
+|---|---|---|
+| com.fasterxml.jackson:jackson-bom | 2.18.1 | Apache License, Version 2.0 |
+| com.fasterxml.jackson.core:jackson-annotations | 2.18.1 | Apache License, Version 2.0 |
+| com.fasterxml.jackson.core:jackson-core | 2.18.1 | Apache License, Version 2.0 |
+| com.fasterxml.jackson.core:jackson-databind | 2.18.1 | Apache License, Version 2.0 |
+| com.google.code.findbugs:jsr305 | 3.0.2 | Apache License, Version 2.0 |
+| com.google.errorprone:error_prone_annotations | 2.11.0 | Apache License, Version 2.0 |
+| com.google.guava:failureaccess | 1.0.1 | Apache License, Version 2.0 |
+| com.google.guava:guava | 31.1-jre | Apache License, Version 2.0 |
+| com.google.guava:listenablefuture | 9999.0-empty-to-avoid-conflict-with-guava | Apache License, Version 2.0 |
+| com.google.j2objc:j2objc-annotations | 1.3 | Apache License, Version 2.0 |
+| io.spray:spray-json_2.12 | 1.3.6 | Apache License, Version 2.0 |
+| net.sourceforge.argparse4j:argparse4j | 0.9.0 | MIT |
+| org.checkerframework:checker-qual | 3.12.0 | MIT |
+| org.scala-lang:scala-library | 2.12.20 | Apache License, Version 2.0 |
+
+## Vendored Dependencies
+
+| Dependency | Version | License | Source |
+|---|---|---|---|
+| Project Glow (glow-spark3-assembly) | 1.2.2-SNAPSHOT (custom patch) | Apache License, Version 2.0 | https://github.com/projectglow/glow |

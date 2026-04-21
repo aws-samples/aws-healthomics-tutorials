@@ -17,7 +17,7 @@ A WDL workflow that loads VCF (Variant Call Format) files into Apache Iceberg ta
 | `vcf_file` | File | Yes | — | S3 URI to VCF file. Supports `.vcf` and `.vcf.gz` |
 | `schema` | String | Yes | — | Schema design to use: `1`, `2`, `3`, or `4` |
 | `destination` | String | Yes | — | For Glue catalog: `bucket/path` (no `s3://` prefix). For S3 Tables: full ARN |
-| `container` | String | Yes | — | ECR container image URI |
+| `container` | String | No | `public.ecr.aws/aws-genomics/healthomics-vcf-loader:v1.1.4` | Container image URI |
 | `namespace` | String | No | Auto | Iceberg namespace. Auto-determined by schema if not set |
 | `batch_size` | Int | No | `100000` | Number of VCF records per processing batch |
 

@@ -29,7 +29,7 @@ workflow healthomics_vcf_loader {
         File vcf_file
         String schema
         String destination
-        String container
+        String container = "public.ecr.aws/aws-genomics/healthomics-vcf-loader:v1.1.4"
         String? namespace
         Int batch_size = 100000
     }

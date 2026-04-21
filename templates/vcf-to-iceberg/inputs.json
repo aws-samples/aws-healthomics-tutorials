@@ -1,0 +1,7 @@
+{
+  "vcf_file": "s3://DOC-EXAMPLE-BUCKET/vcf/sample.vcf.gz",
+  "schema": "1",
+  "destination": "arn:aws:s3tables:us-east-1:123456789012:bucket/my-table-bucket",
+  "container": "public.ecr.aws/aws-genomics/healthomics-vcf-loader:v1.1.4",
+  "batch_size": 100000
+}

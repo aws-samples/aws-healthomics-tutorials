@@ -1,6 +1,6 @@
 # Integration Tests for HealthOmics VCF Loader Workflow
 
-This document describes the integration tests for the Nextflow workflow and how to run them.
+This document describes the integration tests for the WDL workflow and how to run them.
 
 ## Overview
 
@@ -16,7 +16,7 @@ The integration tests validate end-to-end workflow execution including:
 
 ## Test Structure
 
-### Component Tests (`TestNextflowWorkflowComponents`)
+### Component Tests (`TestWDLWorkflowComponents`)
 
 These tests validate individual workflow components in isolation:
 - Input validation with various scenarios
@@ -28,15 +28,15 @@ These tests validate individual workflow components in isolation:
 **Run:**
 ```bash
 cd workflow
-python3 -m pytest tests/test_nextflow_integration.py::TestNextflowWorkflowComponents -v
+python3 -m pytest tests/test_wdl_integration.py::TestWDLWorkflowComponents -v
 ```
 
-### Full Integration Tests (`TestNextflowWorkflowIntegration`)
+### Full Integration Tests (`TestWDLWorkflowIntegration`)
 
-These tests run the complete Nextflow workflow end-to-end. They require additional setup.
+These tests run the complete WDL workflow end-to-end. They require additional setup.
 
 **Requirements:**
-1. Nextflow installed (version 22.10.0+)
+1. miniwdl or Cromwell installed
 2. OCI container runtime (docker, finch, or podman) - automatically detected
 3. AWS credentials (for S3 tests)
 4. S3 bucket access (for vanilla S3 tests)
@@ -44,17 +44,14 @@ These tests run the complete Nextflow workflow end-to-end. They require addition
 
 ## Setup Instructions
 
-### 1. Install Nextflow
+### 1. Install a WDL Runner
 
 ```bash
-# Download and install Nextflow
-curl -s https://get.nextflow.io | bash
-
-# Move to a directory in your PATH
-sudo mv nextflow /usr/local/bin/
+# Option A: miniwdl (recommended)
+pip install miniwdl
 
 # Verify installation
-nextflow -version
+miniwdl --version
 ```
 
 ### 2. Install OCI Container Runtime
@@ -138,7 +135,7 @@ aws s3tables create-table-bucket \
 
 ```bash
 cd workflow
-python3 -m pytest tests/test_nextflow_integration.py::TestNextflowWorkflowComponents -v
+python3 -m pytest tests/test_wdl_integration.py::TestWDLWorkflowComponents -v
 ```
 
 ### Run Specific Integration Test
@@ -147,47 +144,47 @@ python3 -m pytest tests/test_nextflow_integration.py::TestNextflowWorkflowCompon
 
 ```bash
 cd workflow
-python3 -m pytest tests/test_nextflow_integration.py::TestNextflowWorkflowIntegration::test_workflow_schema_1_vanilla_s3 -v -s
+python3 -m pytest tests/test_wdl_integration.py::TestWDLWorkflowIntegration::test_workflow_schema_1_vanilla_s3 -v -s
 ```
 
 #### Test with Schema 2 (Vanilla S3)
 
 ```bash
 cd workflow
-python3 -m pytest tests/test_nextflow_integration.py::TestNextflowWorkflowIntegration::test_workflow_schema_2_vanilla_s3 -v -s
+python3 -m pytest tests/test_wdl_integration.py::TestWDLWorkflowIntegration::test_workflow_schema_2_vanilla_s3 -v -s
 ```
 
 #### Test Error Handling
 
 ```bash
 cd workflow
-python3 -m pytest tests/test_nextflow_integration.py::TestNextflowWorkflowIntegration::test_workflow_error_invalid_schema -v -s
-python3 -m pytest tests/test_nextflow_integration.py::TestNextflowWorkflowIntegration::test_workflow_error_missing_vcf_file -v -s
-python3 -m pytest tests/test_nextflow_integration.py::TestNextflowWorkflowIntegration::test_workflow_error_invalid_destination -v -s
+python3 -m pytest tests/test_wdl_integration.py::TestWDLWorkflowIntegration::test_workflow_error_invalid_schema -v -s
+python3 -m pytest tests/test_wdl_integration.py::TestWDLWorkflowIntegration::test_workflow_error_missing_vcf_file -v -s
+python3 -m pytest tests/test_wdl_integration.py::TestWDLWorkflowIntegration::test_workflow_error_invalid_destination -v -s
 ```
 
 #### Test Custom Parameters
 
 ```bash
 cd workflow
-python3 -m pytest tests/test_nextflow_integration.py::TestNextflowWorkflowIntegration::test_workflow_custom_namespace -v -s
-python3 -m pytest tests/test_nextflow_integration.py::TestNextflowWorkflowIntegration::test_workflow_custom_batch_size -v -s
+python3 -m pytest tests/test_wdl_integration.py::TestWDLWorkflowIntegration::test_workflow_custom_namespace -v -s
+python3 -m pytest tests/test_wdl_integration.py::TestWDLWorkflowIntegration::test_workflow_custom_batch_size -v -s
 ```
 
 #### Test Idempotency
 
 ```bash
 cd workflow
-python3 -m pytest tests/test_nextflow_integration.py::TestNextflowWorkflowIntegration::test_workflow_idempotent_execution -v -s
+python3 -m pytest tests/test_wdl_integration.py::TestWDLWorkflowIntegration::test_workflow_idempotent_execution -v -s
 ```
 
 ### Run All Integration Tests
 
-**Note:** This requires Nextflow, Docker, and may take several minutes:
+**Note:** This requires a WDL runner, Docker, and may take several minutes:
 
 ```bash
 cd workflow
-python3 -m pytest tests/test_nextflow_integration.py::TestNextflowWorkflowIntegration -v -s
+python3 -m pytest tests/test_wdl_integration.py::TestWDLWorkflowIntegration -v -s
 ```
 
 ### Run S3 Tables Test
@@ -201,7 +198,7 @@ The S3 Tables test is skipped by default. To run it:
 
 ```bash
 cd workflow
-python3 -m pytest tests/test_nextflow_integration.py::TestNextflowWorkflowIntegration::test_workflow_s3tables_destination -v -s
+python3 -m pytest tests/test_wdl_integration.py::TestWDLWorkflowIntegration::test_workflow_s3tables_destination -v -s
 ```
 
 ## Test Data
@@ -213,13 +210,13 @@ The tests use VCF files from the `test-data/` directory:
 
 ## Troubleshooting
 
-### Nextflow Not Found
+### WDL Runner Not Found
 
 ```
-Error: nextflow: command not found
+Error: miniwdl: command not found
 ```
 
-**Solution:** Install Nextflow or add it to your PATH.
+**Solution:** Install miniwdl (`pip install miniwdl`) or add it to your PATH.
 
 ### No Container Runtime Found
 
@@ -301,14 +298,14 @@ The integration tests validate:
 
 ## Continuous Integration
 
-For CI/CD pipelines, use the component tests which don't require Nextflow or AWS:
+For CI/CD pipelines, use the component tests which don't require a WDL runner or AWS:
 
 ```yaml
 # Example GitHub Actions workflow
 - name: Run Component Tests
   run: |
     cd workflow
-    python3 -m pytest tests/test_nextflow_integration.py::TestNextflowWorkflowComponents -v
+    python3 -m pytest tests/test_wdl_integration.py::TestWDLWorkflowComponents -v
 ```
 
 For full integration tests in CI, use mocked S3 or LocalStack:
@@ -322,12 +319,13 @@ For full integration tests in CI, use mocked S3 or LocalStack:
   run: |
     export AWS_ENDPOINT_URL=http://localhost:4566
     cd workflow
-    python3 -m pytest tests/test_nextflow_integration.py -v
+    python3 -m pytest tests/test_wdl_integration.py -v
 ```
 
 ## Additional Resources
 
-- [Nextflow Documentation](https://www.nextflow.io/docs/latest/index.html)
+- [WDL Specification](https://github.com/openwdl/wdl)
+- [miniwdl Documentation](https://miniwdl.readthedocs.io/)
 - [PyIceberg Documentation](https://py.iceberg.apache.org/)
 - [AWS S3 Tables Documentation](https://docs.aws.amazon.com/s3/latest/userguide/s3-tables.html)
 - [Workflow README](../README.md)

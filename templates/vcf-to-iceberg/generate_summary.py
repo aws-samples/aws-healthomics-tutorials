@@ -174,7 +174,7 @@ def main():
         # Write summary to file
         write_summary(summary, args.output)
         
-        # Print summary to stdout for Nextflow to capture
+        # Print summary to stdout for WDL to capture
         print(json.dumps(summary, indent=2))
         
         return 0

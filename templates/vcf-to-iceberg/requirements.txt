@@ -1,0 +1,4 @@
+pyiceberg==0.11.1
+pyiceberg-core==0.8.0
+boto3>=1.37.26
+pyarrow>=19.0.1

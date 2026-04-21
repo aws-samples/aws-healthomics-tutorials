@@ -1,0 +1,11 @@
+# Ignore unnecessary files during Docker build
+*.md
+.git
+.gitignore
+*.sh
+main.nf
+nextflow.config
+results/
+work/
+.nextflow/
+.nextflow.log*

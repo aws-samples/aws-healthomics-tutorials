@@ -1,0 +1,33 @@
+##gff-version 3
+##sequence-region chr1 1 248956422
+##sequence-region chr2 1 242193529
+##species https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=9606
+chr1	ensembl	gene	11869	14409	.	+	.	ID=gene:ENSG00000223972;Name=DDX11L1;biotype=transcribed_unprocessed_pseudogene;description=DEAD/H-box helicase 11 like 1;Dbxref=NCBI:100287102
+chr1	ensembl	mRNA	11869	14409	.	+	.	ID=transcript:ENST00000456328;Parent=gene:ENSG00000223972;Name=DDX11L1-202;biotype=processed_transcript
+chr1	ensembl	exon	11869	12227	.	+	.	ID=exon:ENSE00002234944;Parent=transcript:ENST00000456328;Name=ENSE00002234944;rank=1
+chr1	ensembl	exon	12613	12721	.	+	.	ID=exon:ENSE00003582793;Parent=transcript:ENST00000456328;Name=ENSE00003582793;rank=2
+chr1	ensembl	exon	13221	14409	.	+	.	ID=exon:ENSE00002312635;Parent=transcript:ENST00000456328;Name=ENSE00002312635;rank=3
+chr1	ensembl	gene	14404	29570	.	-	.	ID=gene:ENSG00000227232;Name=WASH7P;biotype=unprocessed_pseudogene;description=WASP family homolog 7 pseudogene;Dbxref=NCBI:653635
+chr1	ensembl	mRNA	14404	29570	.	-	.	ID=transcript:ENST00000488147;Parent=gene:ENSG00000227232;Name=WASH7P-201;biotype=unprocessed_pseudogene
+chr1	ensembl	exon	14404	14501	.	-	.	ID=exon:ENSE00001890064;Parent=transcript:ENST00000488147;Name=ENSE00001890064;rank=1
+chr1	ensembl	exon	15005	15038	.	-	.	ID=exon:ENSE00003507205;Parent=transcript:ENST00000488147;Name=ENSE00003507205;rank=2
+chr1	ensembl	exon	15796	15947	.	-	.	ID=exon:ENSE00003477500;Parent=transcript:ENST00000488147;Name=ENSE00003477500;rank=3
+chr1	ensembl	exon	16607	16765	.	-	.	ID=exon:ENSE00003565697;Parent=transcript:ENST00000488147;Name=ENSE00003565697;rank=4
+chr1	ensembl	exon	16858	17055	.	-	.	ID=exon:ENSE00003475637;Parent=transcript:ENST00000488147;Name=ENSE00003475637;rank=5
+chr1	ensembl	exon	17233	17368	.	-	.	ID=exon:ENSE00003502542;Parent=transcript:ENST00000488147;Name=ENSE00003502542;rank=6
+chr1	ensembl	exon	17606	17742	.	-	.	ID=exon:ENSE00003553898;Parent=transcript:ENST00000488147;Name=ENSE00003553898;rank=7
+chr1	ensembl	exon	17915	18061	.	-	.	ID=exon:ENSE00003621279;Parent=transcript:ENST00000488147;Name=ENSE00003621279;rank=8
+chr1	ensembl	exon	18268	18366	.	-	.	ID=exon:ENSE00003624603;Parent=transcript:ENST00000488147;Name=ENSE00003624603;rank=9
+chr1	ensembl	exon	24738	24891	.	-	.	ID=exon:ENSE00003530919;Parent=transcript:ENST00000488147;Name=ENSE00003530919;rank=10
+chr1	ensembl	exon	29534	29570	.	-	.	ID=exon:ENSE00001863096;Parent=transcript:ENST00000488147;Name=ENSE00001863096;rank=11
+chr1	havana	gene	29554	31109	.	+	.	ID=gene:ENSG00000243485;Name=MIR1302-2HG;biotype=lncRNA;description=MIR1302-2 host gene
+chr1	havana	mRNA	29554	31097	.	+	.	ID=transcript:ENST00000473358;Parent=gene:ENSG00000243485;Name=MIR1302-2HG-202;biotype=lncRNA
+chr1	havana	exon	29554	30039	.	+	.	ID=exon:ENSE00001947070;Parent=transcript:ENST00000473358;Name=ENSE00001947070;rank=1
+chr1	havana	exon	30564	30667	.	+	.	ID=exon:ENSE00001922571;Parent=transcript:ENST00000473358;Name=ENSE00001922571;rank=2
+chr1	havana	exon	30976	31097	.	+	.	ID=exon:ENSE00001827679;Parent=transcript:ENST00000473358;Name=ENSE00001827679;rank=3
+chr2	ensembl	gene	38814	46588	.	+	.	ID=gene:ENSG00000184731;Name=FAM110C;biotype=protein_coding;description=family with sequence similarity 110 member C;Dbxref=NCBI:642273
+chr2	ensembl	mRNA	38814	46588	.	+	.	ID=transcript:ENST00000461467;Parent=gene:ENSG00000184731;Name=FAM110C-202;biotype=protein_coding
+chr2	ensembl	exon	38814	38912	.	+	.	ID=exon:ENSE00001758274;Parent=transcript:ENST00000461467;Name=ENSE00001758274;rank=1
+chr2	ensembl	CDS	38814	38912	.	+	0	ID=CDS:ENSP00000418705;Parent=transcript:ENST00000461467;protein_id=ENSP00000418705
+chr2	ensembl	exon	45440	46588	.	+	.	ID=exon:ENSE00001667363;Parent=transcript:ENST00000461467;Name=ENSE00001667363;rank=2
+chr2	ensembl	CDS	45440	46174	.	+	2	ID=CDS:ENSP00000418705.2;Parent=transcript:ENST00000461467;protein_id=ENSP00000418705

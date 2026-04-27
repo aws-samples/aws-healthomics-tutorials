@@ -1,0 +1,26 @@
+{
+  "schema": {
+    "description": "Schema design to use (1 or 2)",
+    "optional": false
+  },
+  "destination": {
+    "description": "S3 Table Bucket ARN (arn:aws:s3tables:...) or S3 path (bucket/path without s3:// prefix) for Glue catalog.",
+    "optional": false
+  },
+  "container": {
+    "description": "ECR container image URI",
+    "optional": false
+  },
+  "namespace": {
+    "description": "Iceberg namespace. Auto-determined by schema if omitted.",
+    "optional": true
+  },
+  "batch_size": {
+    "description": "Number of GFF3 records per processing batch (default: 100000)",
+    "optional": true
+  },
+  "gff3_file": {
+    "description": "S3 URI to the input GFF3 file (.gff3 or .gff3.gz)",
+    "optional": false
+  }
+}

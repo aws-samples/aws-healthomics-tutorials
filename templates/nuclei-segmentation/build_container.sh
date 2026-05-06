@@ -46,6 +46,22 @@ echo "Runtime: ${CONTAINER_RUNTIME}"
 echo "Architectures: amd64 (HealthOmics), arm64 (local Mac)"
 echo ""
 
+# Download model weights from HuggingFace if not already present
+MODEL_DIR="bundles/pathology_nuclei_segmentation_classification/models"
+MODEL_FILE="${MODEL_DIR}/model.pt"
+MODEL_URL="https://huggingface.co/MONAI/pathology_nuclei_segmentation_classification/resolve/main/models/model.pt?download=true"
+
+if [ ! -f "${MODEL_FILE}" ]; then
+    echo ">> Downloading model weights from HuggingFace..."
+    mkdir -p "${MODEL_DIR}"
+    curl -L -o "${MODEL_FILE}" "${MODEL_URL}"
+    echo "   Model downloaded ($(du -h "${MODEL_FILE}" | cut -f1))."
+    echo ""
+else
+    echo ">> Model weights already present ($(du -h "${MODEL_FILE}" | cut -f1))."
+    echo ""
+fi
+
 ${CONTAINER_RUNTIME} build --platform linux/amd64,linux/arm64 -t ${CONTAINER_NAME}:${CONTAINER_TAG} .
 
 echo ""

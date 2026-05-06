@@ -91,6 +91,22 @@ echo ""
 
 # Step 1: Build the container (amd64 for HealthOmics)
 if [ "${SKIP_BUILD}" = false ]; then
+    # Download model weights from HuggingFace if not already present
+    MODEL_DIR="bundles/pathology_nuclei_segmentation_classification/models"
+    MODEL_FILE="${MODEL_DIR}/model.pt"
+    MODEL_URL="https://huggingface.co/MONAI/pathology_nuclei_segmentation_classification/resolve/main/models/model.pt?download=true"
+
+    if [ ! -f "${MODEL_FILE}" ]; then
+        echo ">> Downloading model weights from HuggingFace..."
+        mkdir -p "${MODEL_DIR}"
+        curl -L -o "${MODEL_FILE}" "${MODEL_URL}"
+        echo "   Model downloaded ($(du -h "${MODEL_FILE}" | cut -f1))."
+        echo ""
+    else
+        echo ">> Model weights already present ($(du -h "${MODEL_FILE}" | cut -f1))."
+        echo ""
+    fi
+
     echo ">> Building container for amd64 (required by HealthOmics)..."
     ${CONTAINER_RUNTIME} build --platform linux/amd64 -t "${LOCAL_IMAGE}" .
     echo "   Build complete."

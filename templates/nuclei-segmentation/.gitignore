@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+
+# macOS
+.DS_Store
+
+# Build artifacts
+workflow.zip
+
+# HealthOmics local config (contains account-specific values)
+.healthomics/
+
+# Kiro IDE
+.kiro/
+
+# Test files
+test_images/
+test_*.py
+test_*.geojson
+65440.geojson
+
+# Dev artifacts
+run_*.log
+output_ann.dcm
+
+# Old pipeline iterations
+process_wsi_sequential.py
+process_wsi_threadpool.py
+process_wsi_threadpool_v2.py
+
+# Dev utility scripts
+create_test_image.py
+hovernet_to_ann.py
+interpret_results.py
+
+# Bundle files not needed at runtime
+bundles/**/.cache/
+bundles/**/.DS_Store
+bundles/**/.gitattributes
+bundles/**/configs/
+bundles/**/docs/
+bundles/**/eval/
+bundles/**/scripts/
+bundles/**/models/stage0/
+
+# Test virtual environment
+.test_venv/

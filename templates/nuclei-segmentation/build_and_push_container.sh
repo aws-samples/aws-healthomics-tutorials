@@ -1,0 +1,181 @@
+#!/bin/bash
+#
+# Build and push the HealthOmics Nuclei Segmentation container to Amazon ECR.
+#
+# Usage:
+#   ./build_and_push_container.sh --account-id 123456789012 --region us-east-1
+#   ./build_and_push_container.sh --account-id 123456789012 --region us-east-1 --repo my-repo --tag v1.0.0
+#   ./build_and_push_container.sh --account-id 123456789012 --region us-east-1 --docker
+#
+# Options:
+#   --account-id   AWS account ID (required)
+#   --region       AWS region (required)
+#   --repo         ECR repository name (default: healthomics-hovernet)
+#   --tag          Image tag (default: latest)
+#   --skip-build   Skip the build step, only tag and push
+#   --finch        Use finch as container runtime
+#   --podman       Use podman as container runtime
+#   --docker       Use docker as container runtime
+#
+
+set -euo pipefail
+
+# Defaults
+REPO_NAME="healthomics-hovernet"
+IMAGE_TAG="latest"
+SKIP_BUILD=false
+
+# --- Auto-detect container runtime ---
+detect_runtime() {
+    if command -v finch &>/dev/null; then echo "finch"
+    elif command -v podman &>/dev/null; then echo "podman"
+    elif command -v docker &>/dev/null; then echo "docker"
+    else echo ""; fi
+}
+
+CONTAINER_RUNTIME=""
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --account-id) AWS_ACCOUNT_ID="$2"; shift 2 ;;
+        --region)     AWS_REGION="$2";     shift 2 ;;
+        --repo)       REPO_NAME="$2";      shift 2 ;;
+        --tag)        IMAGE_TAG="$2";       shift 2 ;;
+        --skip-build) SKIP_BUILD=true;      shift ;;
+        --finch)      CONTAINER_RUNTIME="finch";  shift ;;
+        --podman)     CONTAINER_RUNTIME="podman"; shift ;;
+        --docker)     CONTAINER_RUNTIME="docker"; shift ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Usage: $0 --account-id <id> --region <region> [--repo <name>] [--tag <tag>] [--skip-build] [--finch|--podman|--docker]"
+            exit 1
+            ;;
+    esac
+done
+
+# Auto-detect runtime if not specified
+if [ -z "${CONTAINER_RUNTIME}" ]; then
+    CONTAINER_RUNTIME=$(detect_runtime)
+    if [ -z "${CONTAINER_RUNTIME}" ]; then
+        echo "Error: No container runtime found. Install finch, podman, or docker."
+        exit 1
+    fi
+fi
+
+# Validate required arguments
+if [ -z "${AWS_ACCOUNT_ID:-}" ]; then
+    echo "Error: --account-id is required"
+    exit 1
+fi
+if [ -z "${AWS_REGION:-}" ]; then
+    echo "Error: --region is required"
+    exit 1
+fi
+
+ECR_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+FULL_IMAGE="${ECR_URI}/${REPO_NAME}:${IMAGE_TAG}"
+LOCAL_IMAGE="${REPO_NAME}:${IMAGE_TAG}"
+
+echo "============================================"
+echo "HealthOmics Nuclei Segmentation - Build & Push to ECR"
+echo "============================================"
+echo "Account:   ${AWS_ACCOUNT_ID}"
+echo "Region:    ${AWS_REGION}"
+echo "Repo:      ${REPO_NAME}"
+echo "Tag:       ${IMAGE_TAG}"
+echo "Runtime:   ${CONTAINER_RUNTIME}"
+echo "ECR Image: ${FULL_IMAGE}"
+echo "============================================"
+echo ""
+
+# Step 1: Build the container (amd64 for HealthOmics)
+if [ "${SKIP_BUILD}" = false ]; then
+    echo ">> Building container for amd64 (required by HealthOmics)..."
+    ${CONTAINER_RUNTIME} build --platform linux/amd64 -t "${LOCAL_IMAGE}" .
+    echo "   Build complete."
+    echo ""
+
+    # Skip verification when cross-compiling — QEMU can segfault on PyTorch/CUDA extensions
+    HOST_ARCH=$(uname -m)
+    if [ "${HOST_ARCH}" = "x86_64" ]; then
+        echo ">> Verifying container dependencies..."
+        ${CONTAINER_RUNTIME} run --rm "${LOCAL_IMAGE}" python3 -c "
+import torch; import monai; import openslide
+print('All dependencies loaded successfully')
+"
+    else
+        echo ">> Skipping verification (cross-compiling amd64 on ${HOST_ARCH})."
+        echo "   Container will run natively on HealthOmics (x86_64)."
+    fi
+    echo ""
+fi
+
+# Step 2: Authenticate to ECR
+echo ">> Authenticating to ECR..."
+aws ecr get-login-password --region "${AWS_REGION}" | \
+    ${CONTAINER_RUNTIME} login --username AWS --password-stdin "${ECR_URI}"
+echo ""
+
+# Step 3: Create ECR repository if it doesn't exist
+echo ">> Ensuring ECR repository exists..."
+aws ecr describe-repositories \
+    --repository-names "${REPO_NAME}" \
+    --region "${AWS_REGION}" > /dev/null 2>&1 || \
+aws ecr create-repository \
+    --repository-name "${REPO_NAME}" \
+    --region "${AWS_REGION}" \
+    --image-scanning-configuration scanOnPush=true
+echo ""
+
+# Step 4: Set ECR repository policy for HealthOmics access
+echo ">> Setting ECR repository policy for HealthOmics..."
+POLICY_JSON=$(cat <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowHealthOmicsAccess",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "omics.amazonaws.com"
+      },
+      "Action": [
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage",
+        "ecr:BatchCheckLayerAvailability"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "aws:SourceAccount": "${AWS_ACCOUNT_ID}"
+        }
+      }
+    }
+  ]
+}
+EOF
+)
+
+aws ecr set-repository-policy \
+    --repository-name "${REPO_NAME}" \
+    --region "${AWS_REGION}" \
+    --policy-text "${POLICY_JSON}" > /dev/null
+echo "   HealthOmics (omics.amazonaws.com) granted pull access."
+echo ""
+
+# Step 5: Tag and push
+echo ">> Tagging image for ECR..."
+${CONTAINER_RUNTIME} tag "${LOCAL_IMAGE}" "${FULL_IMAGE}"
+
+echo ">> Pushing to ECR..."
+${CONTAINER_RUNTIME} push "${FULL_IMAGE}"
+echo ""
+
+echo "============================================"
+echo "Push complete!"
+echo ""
+echo "Image URI: ${FULL_IMAGE}"
+echo ""
+echo "Use this container URI in your WDL parameters:"
+echo "  \"container_image_uri\": \"${FULL_IMAGE}\""
+echo "============================================"

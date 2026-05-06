@@ -1,0 +1,17 @@
+# Ignore unnecessary files during Docker build
+*.md
+.git
+.gitignore
+*.sh
+test_images/
+test_*.py
+*.geojson
+*.log
+*.dcm
+*.zip
+venv/
+__pycache__/
+.kiro/
+.healthomics/
+aws-healthomics-tutorials/
+.DS_Store

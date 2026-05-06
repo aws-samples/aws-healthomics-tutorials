@@ -1,0 +1,30 @@
+{
+  "slide_image": {
+    "description": "S3 URI of the SVS whole-slide image",
+    "optional": false
+  },
+  "container_image_uri": {
+    "description": "ECR container image URI",
+    "optional": false
+  },
+  "pyramid_level": {
+    "description": "OpenSlide pyramid level (0 = highest resolution)",
+    "optional": true
+  },
+  "tile_size": {
+    "description": "Square tile size in pixels (128-1024)",
+    "optional": true
+  },
+  "overlap": {
+    "description": "Pixel overlap between adjacent tiles (default: tile_size/4)",
+    "optional": true
+  },
+  "max_tiles": {
+    "description": "Limit number of tiles processed (for testing)",
+    "optional": true
+  },
+  "roi_geojson": {
+    "description": "Optional GeoJSON file with ROI polygons for region filtering",
+    "optional": true
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "slide_image": {
+    "description": "S3 URI of the SVS whole-slide image",
+    "optional": false,
+    "useCase": {
+      "full slide processing": "s3://<BUCKET-NAME>/slides/sample.svs",
+      "ROI-filtered run": "s3://<BUCKET-NAME>/slides/sample.svs",
+      "low-res testing": "s3://<BUCKET-NAME>/slides/sample.svs"
+    }
+  },
+  "container_image_uri": {
+    "description": "ECR container image URI",
+    "optional": false,
+    "useCase": {
+      "full slide processing": "<ACCOUNT-ID>.dkr.ecr.<REGION>.amazonaws.com/healthomics-hovernet:latest",
+      "ROI-filtered run": "<ACCOUNT-ID>.dkr.ecr.<REGION>.amazonaws.com/healthomics-hovernet:latest",
+      "low-res testing": "<ACCOUNT-ID>.dkr.ecr.<REGION>.amazonaws.com/healthomics-hovernet:latest"
+    }
+  },
+  "pyramid_level": {
+    "description": "OpenSlide pyramid level (0 = highest resolution)",
+    "optional": true,
+    "useCase": {
+      "full slide processing": 0,
+      "ROI-filtered run": 0,
+      "low-res testing": 2
+    }
+  },
+  "tile_size": {
+    "description": "Square tile size in pixels (128-1024)",
+    "optional": true,
+    "useCase": {
+      "full slide processing": 512,
+      "ROI-filtered run": 512,
+      "low-res testing": 256
+    }
+  },
+  "overlap": {
+    "description": "Pixel overlap between adjacent tiles (default: tile_size/4)",
+    "optional": true,
+    "useCase": {
+      "full slide processing": 128,
+      "ROI-filtered run": 128,
+      "low-res testing": 64
+    }
+  },
+  "max_tiles": {
+    "description": "Limit number of tiles processed (for testing)",
+    "optional": true,
+    "useCase": {
+      "full slide processing": null,
+      "ROI-filtered run": null,
+      "low-res testing": 50
+    }
+  },
+  "roi_geojson": {
+    "description": "Optional GeoJSON file with ROI polygons for region filtering",
+    "optional": true,
+    "useCase": {
+      "full slide processing": null,
+      "ROI-filtered run": "s3://<BUCKET-NAME>/annotations/roi.geojson",
+      "low-res testing": null
+    }
+  }
+}

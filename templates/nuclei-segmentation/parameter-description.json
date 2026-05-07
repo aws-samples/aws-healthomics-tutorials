@@ -3,18 +3,18 @@
     "description": "S3 URI of the SVS whole-slide image",
     "optional": false,
     "useCase": {
-      "full slide processing": "s3://<BUCKET-NAME>/slides/sample.svs",
-      "ROI-filtered run": "s3://<BUCKET-NAME>/slides/sample.svs",
-      "low-res testing": "s3://<BUCKET-NAME>/slides/sample.svs"
+      "full slide processing": "s3://<BUCKET-NAME>/nuclei-segmentation/svs-sample.svs",
+      "ROI-filtered run": "s3://<BUCKET-NAME>/nuclei-segmentation/svs-sample.svs",
+      "low-res testing": "s3://<BUCKET-NAME>/nuclei-segmentation/svs-sample.svs"
     }
   },
   "container_image_uri": {
     "description": "ECR container image URI",
     "optional": false,
     "useCase": {
-      "full slide processing": "<ACCOUNT-ID>.dkr.ecr.<REGION>.amazonaws.com/healthomics-hovernet:latest",
-      "ROI-filtered run": "<ACCOUNT-ID>.dkr.ecr.<REGION>.amazonaws.com/healthomics-hovernet:latest",
-      "low-res testing": "<ACCOUNT-ID>.dkr.ecr.<REGION>.amazonaws.com/healthomics-hovernet:latest"
+      "full slide processing": "public.ecr.aws/aws-genomics/healthomics-hovernet:latest",
+      "ROI-filtered run": "public.ecr.aws/aws-genomics/healthomics-hovernet:latest",
+      "low-res testing": "public.ecr.aws/aws-genomics/healthomics-hovernet:latest"
     }
   },
   "pyramid_level": {
@@ -58,7 +58,7 @@
     "optional": true,
     "useCase": {
       "full slide processing": null,
-      "ROI-filtered run": "s3://<BUCKET-NAME>/annotations/roi.geojson",
+      "ROI-filtered run": "s3://<BUCKET-NAME>/nuclei-segmentation/svs-sample.geojson",
       "low-res testing": null
     }
   }

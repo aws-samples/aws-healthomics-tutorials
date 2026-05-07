@@ -78,9 +78,6 @@ flowchart LR
 - **Container security**: Images are pulled from private ECR with scan-on-push enabled
 - **Least privilege**: AWS Identity and Access Management (IAM) role scoped to specific bucket ARNs and log group patterns
 
-### Threat Model Reference
-
-A detailed threat model for this workflow is available in `ThreatComposer_Workspace_HealthOmics_Nuclei_Segmentation.tc.json`.
 
 ### Per-Service Security Guidelines
 

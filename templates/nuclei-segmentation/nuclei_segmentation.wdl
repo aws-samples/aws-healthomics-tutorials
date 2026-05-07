@@ -63,16 +63,34 @@ task segment_nuclei {
     }
 
     command <<<
+        set -euo pipefail
+
         LOG="task.log"
         log() { echo "[$(date +%H:%M:%S)] $1" | tee -a "$LOG"; }
+
+        # Trap to create placeholder outputs on failure so the log gets collected
+        cleanup() {
+            local exit_code=$?
+            if [ ! -f nuclei.geojson ]; then
+                log "WARNING: nuclei.geojson missing, creating placeholder"
+                echo '{"type":"FeatureCollection","features":[]}' > nuclei.geojson
+            fi
+            if [ ! -f nuclei_tissue_mask.geojson ]; then
+                log "WARNING: nuclei_tissue_mask.geojson missing, creating placeholder"
+                echo '{"type":"FeatureCollection","features":[]}' > nuclei_tissue_mask.geojson
+            fi
+            log "=== DONE (exit_code=$exit_code) ==="
+            exit "$exit_code"
+        }
+        trap cleanup EXIT
 
         log "=== STAGE 1: Environment ==="
         log "Date: $(date)"
         log "Kernel: $(uname -a)"
         free -h 2>&1 | tee -a "$LOG" || true
         log "CPUs: $(nproc 2>&1 || echo unknown)"
-        nvidia-smi 2>&1 | tee -a "$LOG" || log "nvidia-smi not available"
-        ls -la ~{slide_image} 2>&1 | tee -a "$LOG" || log "input file not found"
+        nvidia-smi 2>&1 | tee -a "$LOG" || true
+        ls -la ~{slide_image} 2>&1 | tee -a "$LOG" || true
         log "=== STAGE 1 COMPLETE ==="
 
         log "=== STAGE 2: Python imports ==="
@@ -86,7 +104,7 @@ if torch.cuda.is_available(): print(f'  GPU: {torch.cuda.get_device_name(0)}', f
 print('Importing monai...', flush=True); import monai; print(f'  monai {monai.__version__} ({time.time()-t0:.1f}s)', flush=True)
 print('Importing openslide...', flush=True); import openslide; print(f'  openslide OK ({time.time()-t0:.1f}s)', flush=True)
 print('All imports OK', flush=True)
-" 2>&1 | tee -a "$LOG" || log "PYTHON IMPORTS FAILED exit=$?"
+" 2>&1 | tee -a "$LOG"
         log "=== STAGE 2 COMPLETE ==="
 
         log "=== STAGE 3: Running pipeline ==="
@@ -100,20 +118,7 @@ print('All imports OK', flush=True)
             ~{if defined(max_tiles) then "--max-tiles ~{select_first([max_tiles, 0])}" else ""} \
             ~{if defined(roi_geojson) then "--roi ~{roi_geojson}" else ""} \
             2>&1 | tee -a "$LOG"
-        PIPELINE_EXIT=${PIPESTATUS[0]}
-        log "Pipeline exit code: $PIPELINE_EXIT"
-
-        # Create placeholder output files if missing so the task completes and the log gets collected
-        if [ ! -f nuclei.geojson ]; then
-            log "WARNING: nuclei.geojson missing, creating placeholder"
-            echo '{"type":"FeatureCollection","features":[]}' > nuclei.geojson
-        fi
-        if [ ! -f nuclei_tissue_mask.geojson ]; then
-            log "WARNING: nuclei_tissue_mask.geojson missing, creating placeholder"
-            echo '{"type":"FeatureCollection","features":[]}' > nuclei_tissue_mask.geojson
-        fi
-
-        log "=== DONE (pipeline_exit=$PIPELINE_EXIT) ==="
+        log "Pipeline completed successfully"
     >>>
 
     runtime {

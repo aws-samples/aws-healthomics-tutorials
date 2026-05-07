@@ -1,6 +1,0 @@
-{
-  "slide_image": "s3://DOC-EXAMPLE-BUCKET/slides/sample.svs",
-  "container_image_uri": "123456789012.dkr.ecr.us-east-1.amazonaws.com/healthomics-hovernet:latest",
-  "pyramid_level": 0,
-  "tile_size": 512
-}

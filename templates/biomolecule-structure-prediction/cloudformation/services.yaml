@@ -1,0 +1,392 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+Description: >
+  AWS HealthOmics supporting services: Docker Hub credentials (AWS Secrets
+  Manager), Amazon Elastic Container Registry (Amazon ECR) pull-through cache,
+  registry policy, repository creation template, and workflow IAM role.
+
+  SECURITY NOTE — Shared responsibility model:
+  AWS secures the underlying AWS HealthOmics, AWS Secrets Manager, Amazon ECR,
+  and AWS KMS service infrastructure. Customers are responsible for:
+  - Reviewing IAM role permissions to verify least privilege within 7 days of deployment
+  - Rotating Docker Hub credentials stored in AWS Secrets Manager quarterly
+  - Configuring the Amazon S3 bucket with encryption, Block Public Access, and versioning
+  - Monitoring Amazon CloudWatch Logs and AWS CloudTrail for security events
+  See docs/security-guidelines.md for detailed per-service guidance.
+
+Parameters:
+  DockerHubUsername:
+    Description: Docker Hub username for Amazon ECR pull-through cache authentication
+    Type: String
+    NoEcho: true
+
+  DockerHubAccessToken:
+    Description: Docker Hub access token for Amazon ECR pull-through cache authentication
+    Type: String
+    NoEcho: true
+
+  WorkflowBucketName:
+    Description: Amazon S3 bucket name used for AWS HealthOmics workflow inputs and outputs
+    Type: String
+
+  WorkflowDefinitionUri:
+    Description: S3 URI to the workflow definition zip (e.g. s3://bucket/workflow.zip)
+    Type: String
+
+  VpcId:
+    Description: Amazon VPC ID for AWS HealthOmics security group
+    Type: AWS::EC2::VPC::Id
+
+  PrivateSubnetIds:
+    Description: Comma-delimited list of private subnet IDs for AWS HealthOmics Amazon VPC
+      configuration
+    Type: List<AWS::EC2::Subnet::Id>
+
+Resources:
+
+  # --- AWS HealthOmics Run Security Group & VPC Configuration ---
+
+  HealthOmicsRunSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W5
+            reason: >-
+              HealthOmics runs require outbound HTTPS to reach ECR, S3, and
+              optionally the MSA server via NAT gateway. Traffic is restricted
+              to port 443 only.
+    Properties:
+      GroupDescription: "Allow outbound HTTPS/HTTP for HealthOmics VPC-connected runs"
+      VpcId: !Ref VpcId
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+          Description: "Allow HTTPS to internet"
+
+  OmicsVpcConfiguration:
+    Type: AWS::Omics::Configuration
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E3006
+      cfn_nag:
+        rules_to_suppress:
+          - id: W28
+            reason: >-
+              Name is a required property for AWS::Omics::Configuration and
+              is referenced by deploy.sh via stack output.
+    Properties:
+      Name: openfold3-vpc-config
+      Description: "VPC configuration for OpenFold3 workflow in HealthOmics"
+      RunConfigurations:
+        VpcConfig:
+          SecurityGroupIds:
+            - !Ref HealthOmicsRunSecurityGroup
+          SubnetIds: !Ref PrivateSubnetIds
+
+  # --- AWS HealthOmics Workflow ---
+
+  OmicsWorkflow:
+    Type: AWS::Omics::Workflow
+    Properties:
+      Name: openfold3-inference
+      Description: OpenFold3 inference workflow
+      Engine: NEXTFLOW
+      Main: main.nf
+      DefinitionUri: !Ref WorkflowDefinitionUri
+      Accelerators: GPU
+      StorageType: DYNAMIC
+      ContainerRegistryMap:
+        RegistryMappings:
+          - UpstreamRegistryUrl: registry-1.docker.io
+            EcrRepositoryPrefix: docker-hub
+      ParameterTemplate:
+        query_json:
+          Description: S3 URI to the OpenFold3 query JSON file
+          Optional: false
+        runner_yml:
+          Description: S3 URI to the runner configuration YAML
+          Optional: true
+        params:
+          Description: "S3 URI to the model parameters file (default:
+            s3://openfold3-data/openfold3-parameters/of3-p2-155k.pt)"
+          Optional: true
+        use_msa_server:
+          Description: "Enable MSA server usage (true/false). Requires VPC-connected run
+            with NAT gateway for internet access."
+          Optional: true
+        extra_args:
+          Description: Additional CLI flags for run_openfold predict
+          Optional: true
+
+  # --- KMS key for encrypting secrets ---
+
+  SecretsEncryptionKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: Customer-managed KMS key for encrypting AWS Secrets Manager secrets
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: "2012-10-17"
+        Statement:
+          # Note: In KMS key policies, Resource: "*" refers to the key being
+          # created (self-referential) and cannot be replaced with an ARN since
+          # the key does not yet exist at policy evaluation time.
+          - Sid: AllowRootAccountFullAccess
+            Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - kms:Create*
+              - kms:Describe*
+              - kms:Enable*
+              - kms:List*
+              - kms:Put*
+              - kms:Update*
+              - kms:Revoke*
+              - kms:Disable*
+              - kms:Get*
+              - kms:Delete*
+              - kms:TagResource
+              - kms:UntagResource
+              - kms:ScheduleKeyDeletion
+              - kms:CancelKeyDeletion
+              - kms:Decrypt
+              - kms:Encrypt
+              - kms:GenerateDataKey*
+              - kms:ReEncrypt*
+            Resource: "*"
+          # Note: Resource: "*" is required in KMS key policies — refers to this
+          # key (self-referential). See AWS KMS documentation.
+          - Sid: AllowSecretsManagerAccess
+            Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+              - kms:Encrypt
+              - kms:GenerateDataKey*
+              - kms:ReEncrypt*
+            Resource: "*"
+            Condition:
+              StringEquals:
+                kms:ViaService: !Sub secretsmanager.${AWS::Region}.amazonaws.com
+
+  SecretsEncryptionKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/openfold3-secrets
+      TargetKeyId: !Ref SecretsEncryptionKey
+
+  # --- AWS Secrets Manager secret for Docker Hub credentials ---
+  # Security: Credentials are encrypted at rest with a customer-managed KMS key.
+  # Rotate these credentials periodically. Update the secret value via the AWS
+  # CLI or console — the ECR pull-through cache rule references the secret ARN
+  # and picks up new values automatically.
+
+  DockerHubSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: ecr-pullthroughcache/docker-hub
+      Description: >-
+        Docker Hub credentials for Amazon ECR pull-through cache. Rotate
+        these credentials according to organizational security policies.
+        AWS Secrets Manager secures storage and encryption; organizations
+        should manage the credential lifecycle.
+      KmsKeyId: !Ref SecretsEncryptionKey
+      SecretString: !Sub |
+        {"username":"${DockerHubUsername}","accessToken":"${DockerHubAccessToken}"}
+
+  # --- Amazon ECR pull-through cache rule for Docker Hub ---
+
+  DockerHubPullThroughCacheRule:
+    Type: "AWS::ECR::PullThroughCacheRule"
+    Properties:
+      EcrRepositoryPrefix: "docker-hub"
+      UpstreamRegistryUrl: "registry-1.docker.io"
+      CredentialArn: !Ref DockerHubSecret
+      UpstreamRegistry: "docker-hub"
+
+  # --- Amazon ECR Registry Policy (allows AWS HealthOmics to use pull-through cache) ---
+
+  EcrRegistryPolicy:
+    Type: AWS::ECR::RegistryPolicy
+    Properties:
+      PolicyText:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowHealthOmicsPullThroughCache
+            Effect: Allow
+            Principal:
+              Service: omics.amazonaws.com
+            Action:
+              - ecr:CreateRepository
+              - ecr:BatchImportUpstreamImage
+            Resource:
+              - !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/docker-hub/*
+
+  # --- Amazon ECR Repository Creation Template for Docker Hub ---
+
+  DockerHubRepoCreationTemplate:
+    Type: AWS::ECR::RepositoryCreationTemplate
+    Properties:
+      Prefix: docker-hub
+      AppliedFor:
+        - PULL_THROUGH_CACHE
+      Description: Repository creation template for Docker Hub pull-through cache
+      RepositoryPolicy: |
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "AllowHealthOmicsAccess",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "omics.amazonaws.com"
+              },
+              "Action": [
+                "ecr:BatchGetImage",
+                "ecr:GetDownloadUrlForLayer"
+              ]
+            }
+          ]
+        }
+
+  # --- Amazon S3 Bucket Policy: enforce TLS on the workflow bucket ---
+
+  WorkflowBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref WorkflowBucketName
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: DenyInsecureTransport
+            Effect: Deny
+            Principal: "*"
+            Action: "s3:*"
+            Resource:
+              - !Sub arn:aws:s3:::${WorkflowBucketName}
+              - !Sub arn:aws:s3:::${WorkflowBucketName}/*
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+
+  # --- AWS HealthOmics Service Role ---
+  # Security: This role follows least-privilege principles. Each statement is
+  # scoped to specific resources and includes condition blocks where applicable.
+  # AWS secures the IAM service infrastructure and API endpoints.
+  # Customers are responsible for:
+  #   - Reviewing these permissions against security requirements within 7 days of deployment
+  #   - Restricting Amazon S3 bucket access using bucket policies
+  #   - Monitoring role usage through AWS CloudTrail
+  #   - Verifying permissions follow least privilege using AWS IAM Access Analyzer quarterly
+  # Verify permissions: aws iam list-role-policies --role-name <role-name>
+
+  HealthOmicsWorkflowRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: >-
+        Service role for AWS HealthOmics workflows. Review these permissions,
+        restrict Amazon S3 bucket access via bucket policies, and monitor
+        role usage through AWS CloudTrail.
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: omics.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: openfold3-HealthOmicsWorkflowPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: S3Access
+                Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                Resource:
+                  - !Sub arn:aws:s3:::${WorkflowBucketName}/*
+                  - arn:aws:s3:::openfold3-data/*
+                Condition:
+                  Bool:
+                    aws:SecureTransport: "true"
+              - Sid: S3ListBucket
+                Effect: Allow
+                Action:
+                  - s3:ListBucket
+                Resource:
+                  - !Sub arn:aws:s3:::${WorkflowBucketName}
+                  - arn:aws:s3:::openfold3-data
+                Condition:
+                  Bool:
+                    aws:SecureTransport: "true"
+              - Sid: CloudWatchLogs
+                Effect: Allow
+                Action:
+                  - logs:DescribeLogStreams
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:CreateLogGroup
+                Resource:
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/omics/WorkflowLog
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/omics/WorkflowLog:*
+              - Sid: EcrPullThroughCache
+                Effect: Allow
+                Action:
+                  - ecr:BatchGetImage
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:BatchCheckLayerAvailability
+                Resource:
+                  - !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/docker-hub/*
+                Condition:
+                  StringEquals:
+                    aws:PrincipalServiceName: omics.amazonaws.com
+              - Sid: KmsDecryptSecrets
+                Effect: Allow
+                Action:
+                  - kms:Decrypt
+                  - kms:DescribeKey
+                Resource:
+                  - !GetAtt SecretsEncryptionKey.Arn
+
+Outputs:
+  SecretsEncryptionKeyArn:
+    Description: ARN of the AWS KMS key used to encrypt AWS Secrets Manager secrets
+    Value: !GetAtt SecretsEncryptionKey.Arn
+
+  DockerHubSecretArn:
+    Description: ARN of the Docker Hub credentials secret in AWS Secrets Manager
+    Value: !Ref DockerHubSecret
+
+  HealthOmicsWorkflowRoleArn:
+    Description: ARN of the AWS HealthOmics service role for workflow runs
+    Value: !GetAtt HealthOmicsWorkflowRole.Arn
+
+  HealthOmicsRunSecurityGroup:
+    Description: Security group for AWS HealthOmics runs with internet access
+    Value: !Ref HealthOmicsRunSecurityGroup
+
+  OmicsVpcConfigurationArn:
+    Description: ARN of the AWS HealthOmics VPC configuration
+    Value: !GetAtt OmicsVpcConfiguration.Arn
+
+  OmicsVpcConfigurationName:
+    Description: Name of the AWS HealthOmics VPC configuration
+    Value: !Ref OmicsVpcConfiguration
+
+  OmicsWorkflowId:
+    Description: ID of the AWS HealthOmics workflow
+    Value: !GetAtt OmicsWorkflow.Id
+
+  OmicsWorkflowArn:
+    Description: ARN of the AWS HealthOmics workflow
+    Value: !GetAtt OmicsWorkflow.Arn

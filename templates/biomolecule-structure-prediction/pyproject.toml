@@ -1,0 +1,7 @@
+[project]
+name = "openfold3-aho"
+version = "0.1.0"
+description = "AWS HealthOmics implementation of the OpenFold3 inference workflow."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []

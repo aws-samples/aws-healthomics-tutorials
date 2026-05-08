@@ -1,0 +1,8 @@
+{
+    "registryMappings": [
+        {
+            "upstreamRegistryUrl": "registry-1.docker.io",
+            "ecrRepositoryPrefix": "docker-hub"
+        }
+    ]
+}

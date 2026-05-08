@@ -1,0 +1,40 @@
+{
+    "query_json": {
+        "description": "S3 URI to the OpenFold3 query JSON file",
+        "optional": false,
+        "useCase": {
+            "example_basic": "s3://<BUCKET-NAME>/examples/query_ubiquitin.json",
+            "example_dna_ptm": "s3://<BUCKET-NAME>/examples/query_dna_ptm.json",
+            "example_homomer": "s3://<BUCKET-NAME>/examples/query_homomer.json",
+            "example_monomer": "s3://<BUCKET-NAME>/examples/query_multimer.json",
+            "example_protein_ligand_multiple": "s3://<BUCKET-NAME>/examples/query_protein_ligand_multiple.json",
+            "example_protein_ligand": "s3://<BUCKET-NAME>/examples/query_protein_ligand.json",
+            "example_single_protein_single_ligand.json": "s3://<BUCKET-NAME>/examples/query_single_protein_single_ligand.json"
+        }
+    },
+    "runner_yml": {
+        "description": "S3 URI to the runner configuration YAML",
+        "optional": true
+    },
+    "params": {
+        "description": "S3 URI to the model parameters file.",
+        "optional": true,
+        "useCase": {
+            "example_basic": "s3://<BUCKET-NAME>/model-parameters/of3-p2-155k.pt",
+            "example_dna_ptm": "s3://<BUCKET-NAME>/model-parameters/of3-p2-155k.pt",
+            "example_homomer": "s3://<BUCKET-NAME>/model-parameters/of3-p2-155k.pt",
+            "example_monomer": "s3://<BUCKET-NAME>/model-parameters/of3-p2-155k.pt",
+            "example_protein_ligand_multiple": "s3://<BUCKET-NAME>/model-parameters/of3-p2-155k.pt",
+            "example_protein_ligand": "s3://<BUCKET-NAME>/model-parameters/of3-p2-155k.pt",
+            "example_single_protein_single_ligand.json": "s3://<BUCKET-NAME>/model-parameters/of3-p2-155k.pt"
+        }
+    },
+    "use_msa_server": {
+        "description": "Enable MSA server usage (true/false). Requires VPC-connected run with NAT gateway for internet access.",
+        "optional": true
+    },
+    "extra_args": {
+        "description": "Additional CLI flags for run_openfold predict",
+        "optional": true
+    }
+}

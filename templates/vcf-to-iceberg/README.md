@@ -68,6 +68,10 @@ my-bucket/path/to/warehouse
 
 The workflow configures an Iceberg catalog using AWS Glue Data Catalog for table metadata and S3 as the storage backend. If Lake Formation governance is enabled in your account, the execution role also needs explicit Lake Formation grants (see [AWS Permissions](#aws-permissions)).
 
+## Parallel Loading
+
+Loading multiple variant files to the same database in parallel is only possible if *all* data in the variant file will be written to a different partition (see schema_*.py for partition details). With S3Tables this will result in exceptions due to table locks. In S3 with Glue this could cause data corruption.
+
 ## Workflow Stages
 
 1. **Validate Inputs** — Checks VCF file accessibility, validates schema selection, determines catalog type

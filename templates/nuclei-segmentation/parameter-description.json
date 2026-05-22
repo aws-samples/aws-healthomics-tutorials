@@ -3,9 +3,9 @@
     "description": "S3 URI of the SVS whole-slide image",
     "optional": false,
     "useCase": {
-      "full slide processing": "s3://<BUCKET-NAME>/nuclei-segmentation/svs-sample.svs",
-      "ROI-filtered run": "s3://<BUCKET-NAME>/nuclei-segmentation/svs-sample.svs",
-      "low-res testing": "s3://<BUCKET-NAME>/nuclei-segmentation/svs-sample.svs"
+      "full slide processing": "s3://aws-genomics-static-us-west-2/nuclei-segmentation/svs-sample.svs",
+      "ROI-filtered run": "s3://aws-genomics-static-us-west-2/nuclei-segmentation/svs-sample.svs",
+      "low-res testing": "s3://aws-genomics-static-us-west-2/nuclei-segmentation/svs-sample.svs"
     }
   },
   "container_image_uri": {
@@ -58,7 +58,7 @@
     "optional": true,
     "useCase": {
       "full slide processing": null,
-      "ROI-filtered run": "s3://<BUCKET-NAME>/nuclei-segmentation/svs-sample.geojson",
+      "ROI-filtered run": "s3://aws-genomics-static-us-west-2/nuclei-segmentation/svs-sample.geojson",
       "low-res testing": null
     }
   }

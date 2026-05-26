@@ -48,8 +48,6 @@
     "description": "Limit number of tiles processed (for testing)",
     "optional": true,
     "useCase": {
-      "full slide processing": null,
-      "ROI-filtered run": null,
       "low-res testing": 50
     }
   },
@@ -57,9 +55,7 @@
     "description": "Optional GeoJSON file with ROI polygons for region filtering",
     "optional": true,
     "useCase": {
-      "full slide processing": null,
-      "ROI-filtered run": "s3://aws-genomics-static-us-west-2/nuclei-segmentation/svs-sample.geojson",
-      "low-res testing": null
+      "ROI-filtered run": "s3://aws-genomics-static-us-west-2/nuclei-segmentation/svs-sample.geojson"
     }
   }
 }

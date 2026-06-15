@@ -353,7 +353,7 @@ The following are some examples of prompts you can use. Many more are possible.
 
 - _"Help me create a new genomic variant calling workflow"_
 
-### Complex Workflow Developement:
+### Complex Workflow Development:
 
 - _"I want to build a workflow to detect gene fusions in sequence data. I want you to develop a specification for this workflow. Ask me one question at a time until you have a clear understanding of what the workflow will do and then write the
   specification to SPEC.md"_

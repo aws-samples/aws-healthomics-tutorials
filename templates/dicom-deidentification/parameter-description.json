@@ -1,0 +1,30 @@
+{
+  "dicom_input_prefix": {
+    "description": "S3 prefix containing DICOM files. HealthOmics localizes the entire prefix into a directory before the task runs; nested layout is preserved.",
+    "optional": false,
+    "useCase": {
+      "default": "s3://aws-genomics-static-us-west-2/dicom-deid/test/"
+    }
+  },
+  "deidentification_profile": {
+    "description": "S3 path to a JSON de-identification profile. Use profiles/ps315_basic_tcia_v1.json as a starting point and replace the salt with a project-specific secret before staging.",
+    "optional": false,
+    "useCase": {
+      "default": "s3://aws-genomics-static-us-west-2/dicom-deid/profiles/ps315_basic_tcia_v1.json"
+    }
+  },
+  "container": {
+    "description": "ECR container image URI. Build and push it once with `./build_and_push_container.sh --account-id <id> --region <region>` and pass the resulting URI here.",
+    "optional": false,
+    "useCase": {
+      "default": "public.ecr.aws/aws-genomics/healthomics-dicom-deid:1.0"
+    }
+  },
+  "emit_jpeg_previews": {
+    "description": "When true, write a before/after JPEG pair per instance into <output>/jpeg_previews/ for visual verification of mask placement.",
+    "optional": true,
+    "useCase": {
+      "default": true
+    }
+  }
+}

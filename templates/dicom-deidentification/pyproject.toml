@@ -1,0 +1,19 @@
+[project]
+name = "dicom-deid"
+version = "0.1.0"
+description = "DICOM de-identification pipeline for AWS HealthOmics"
+requires-python = ">=3.13"
+dependencies = [
+    "pydicom",
+    "pylibjpeg",
+    "pylibjpeg-openjpeg",
+    "pyjpegls",
+    "pillow",
+    "numpy",
+    "opencv-python-headless",
+    "rapidfuzz",
+    "easyocr",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

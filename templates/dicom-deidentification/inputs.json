@@ -1,0 +1,6 @@
+{
+  "dicom_input_prefix": "s3://aws-genomics-static-us-west-2/dicom-deid/test/",
+  "deidentification_profile": "s3://aws-genomics-static-us-west-2/dicom-deid/profiles/ps315_basic_tcia_v1.json",
+  "container": "public.ecr.aws/aws-genomics/healthomics-dicom-deid:1.0",
+  "emit_jpeg_previews": true
+}

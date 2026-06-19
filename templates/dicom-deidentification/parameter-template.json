@@ -1,0 +1,18 @@
+{
+  "dicom_input_prefix": {
+    "description": "S3 prefix containing DICOM files. HealthOmics localizes the entire prefix into a directory before the task runs.",
+    "optional": false
+  },
+  "deidentification_profile": {
+    "description": "S3 path to the JSON de-identification profile (see profiles/ps315_basic_tcia_v1.json).",
+    "optional": false
+  },
+  "container": {
+    "description": "ECR container image URI built by build_and_push_container.sh.",
+    "optional": false
+  },
+  "emit_jpeg_previews": {
+    "description": "Emit before/after JPEG previews per instance for visual verification (default false).",
+    "optional": true
+  }
+}
